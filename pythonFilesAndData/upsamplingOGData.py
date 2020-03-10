@@ -1,33 +1,59 @@
+import random
+import csv
 
 # Reads in original training data from paper
 originalBinaryTreeData = open("Labeled SO for CoreNLP.txt", 'r')
-num0 = 0
-num1 = 0
-num2 = 0
-num3 = 0
-num4 = 0
-numrows = 0
+
+originalPos = []
+originalNeu = []
+originalNeg = []
+
 for line in originalBinaryTreeData:
-    numrows += 1
     if line[1] == '0':
-        num0 += 1
-        print("this is a very positive (0)", line)
+        originalNeg.append(line)
     if line[1] == '1':
-        num1+=1
+        originalNeg.append(line)
     elif line[1] == '2':
-        num2 += 1
+        originalNeu.append(line)
     elif line[1] == '3':
-        #print("this is a negative (3)", line)
-        num3 += 1
+        originalPos.append(line)
     elif line[1] == '4':
-        num4 += 1
-        print("this is a very negative (4) ", line)
+        originalPos.append(line)
 
-print("total number of rows", numrows)
-print("num of 0s", num0)
-print("num of 1s", num1)
-print("num of 2s", num2)
-print("num of 3s", num3)
-print("num of 4s", num4)
+# Creating upsampled positive componet
+upsampledPosComponet = random.choices(originalPos, k=(len(originalNeu) - len(originalPos)))
 
+# Creating upsampled negative componet
+upsampledNegComponet = random.choices(originalNeg, k=(len(originalNeu) - len(originalNeg)))
 
+upsampledBinaryTreeData = originalPos + upsampledPosComponet + originalNeu + originalNeg + upsampledNegComponet
+
+# Can be used to check the distribution of a dataset as a sanity check
+def checkBalance(dataset):
+    numPos = 0
+    numNeu = 0
+    numNeg = 0
+
+    for line in upsampledBinaryTreeData:
+        if line[1] == '0':
+            numPos += 1
+        if line[1] == '1':
+            numPos += 1
+        elif line[1] == '2':
+            numNeu += 1
+        elif line[1] == '3':
+            numNeg += 1
+        elif line[1] == '4':
+            numNeg += 1
+
+    print("num pos", numPos)
+    print("num neg", numNeg)
+    print("num neu", numNeu)
+
+print(upsampledBinaryTreeData)
+
+with open("upsampledSOData.txt", "w") as output:
+    writer = csv.writer(output, lineterminator='\n')
+    for val in upsampledBinaryTreeData:
+        newVal = val[0:-1]
+        writer.writerow([newVal])
