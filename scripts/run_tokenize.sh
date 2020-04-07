@@ -10,6 +10,8 @@ source scripts/config.sh
 treebank=$1; shift
 args=$@
 short=`bash scripts/treebank_to_shorthand.sh ud $treebank`
+echo $short
+echo $lang
 if [[ "$short" == *"_xv" ]]; then
     short=`echo $short | rev | cut -d_ -f1- | rev`
 fi
